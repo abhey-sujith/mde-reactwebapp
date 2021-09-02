@@ -27,7 +27,7 @@ function GameRoom(props) {
 
       if(props?.history?.location?.state?.type==='create'){
 
-        client.create("chat").then(room => {
+        client.create("my_room").then(room => {
           room_instance.current=room;
           onjoin();
 
