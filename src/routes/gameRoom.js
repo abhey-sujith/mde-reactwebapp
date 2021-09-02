@@ -152,7 +152,7 @@ function GameRoom(props) {
       e.returnValue = '';
       console.log(e);
       console.log(room_instance.current.id,room_instance.current.sessionId);
-      history.replace('/',{})
+      // history.replace('/',{})
     };
 
     // functiion to leave the room
