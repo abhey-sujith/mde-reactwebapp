@@ -2,6 +2,8 @@ import './App.css';
 import {
   BrowserRouter as Router,
 } from 'react-router-dom';
+
+//contains the list of all the routes
 import RouteList from './routes'
 
 function App() {

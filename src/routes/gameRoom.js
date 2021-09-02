@@ -8,14 +8,20 @@ function GameRoom(props) {
     let room_instance= useRef(null)
     const [value, setValue] = useState("");
 
+    // on entering connect to the client
     useEffect(()=>{ 
 
+      // final endpoint - ws://localhost:2567
       var endpoint = window.location.protocol.replace("http", "ws") + "//" + window.location.hostname;
       if (window.location.port && window.location.port !== "80") { endpoint += ":2567" }
       
       console.log(endpoint);
+      //connect to endpoint using client
       let client = new Colyseus.Client(endpoint);
 
+      // function runs when connection is established either by create/join/reconnect
+      // used also to add additional functions like onMessage/onLeave to the room
+      // store the connected session to local storage so that reconnection can be tried
       const onjoin = () => {
         room_instance.current.onMessage("status", (message) => console.log(message));
         room_instance.current.onLeave(() => console.log("Bye, bye!"));
@@ -25,8 +31,10 @@ function GameRoom(props) {
           localStorage.setItem("name", props.history.location.state.name);
       }
 
+      // type can contain 3 things (create/join/reconnect)
       if(props?.history?.location?.state?.type==='create'){
 
+        // create a new room 
         client.create("my_room").then(room => {
           room_instance.current=room;
           onjoin();
@@ -55,6 +63,8 @@ function GameRoom(props) {
         });
       }
       else if(props?.history?.location?.state?.type==='join'){
+
+      // join a room by id
         client.joinById(props.history.location.state.roomid).then(room => {
           room_instance.current=room;
           onjoin();
@@ -78,7 +88,7 @@ function GameRoom(props) {
           //todo: redirect
           console.log('error');
           console.log(e);
-          alert('no room available');
+          alert(e);
           history.goBack();
         });
       }      
@@ -89,6 +99,7 @@ function GameRoom(props) {
         console.log('in reconnnnnect',roomId);
   
         if(roomId && sessionId){
+          //try reconnecting to the room
           client.reconnect(roomId, sessionId).then(room => {
             room_instance.current = room;
             console.log(room);
@@ -107,12 +118,10 @@ function GameRoom(props) {
         }).catch(e => {
             console.error("Error", e);
 
-            localStorage.removeItem("roomId");
+          localStorage.removeItem("roomId");
           localStorage.removeItem("sessionId");
           localStorage.removeItem("name");
-          console.log('innnnnnnnnn rrrrr');
           alert('could not reconnect');
-
             history.replace('/',{});
         });
         }else{
@@ -122,7 +131,6 @@ function GameRoom(props) {
           alert('could not reconnect');
           history.replace('/',{});
         }
-      
       }
       else{
         //redirect to home
@@ -130,6 +138,7 @@ function GameRoom(props) {
       }
     },[])
 
+    // if reload is pressed the pop up is shown to cancel
     useEffect(() => {
       window.addEventListener("beforeunload", alertUser);
       return () => {
@@ -143,8 +152,10 @@ function GameRoom(props) {
       e.returnValue = '';
       console.log(e);
       console.log(room_instance.current.id,room_instance.current.sessionId);
+      history.replace('/',{})
     };
 
+    // functiion to leave the room
     const leave = () => {
       if (room_instance.current) {
         room_instance.current.connection.close();

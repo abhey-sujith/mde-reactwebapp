@@ -4,7 +4,9 @@ import {
     Switch
   } from 'react-router-dom';
 
+// route used to create/join a room
 import Home from './home'
+// route used for the game logic 
 import GameRoom from './gameRoom'
 
 const RouteList=()=>
