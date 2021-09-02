@@ -5,9 +5,9 @@ import {
   } from 'react-router-dom';
 
 // route used to create/join a room
-import Home from './home'
+import Home from '../components/home'
 // route used for the game logic 
-import GameRoom from './gameRoom'
+import GameRoom from '../components/gameRoom'
 
 const RouteList=()=>
 {

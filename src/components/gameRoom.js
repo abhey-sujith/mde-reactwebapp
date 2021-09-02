@@ -1,10 +1,26 @@
 import { useEffect,useState ,useRef} from "react";
 import * as Colyseus from 'colyseus.js'
 import { useHistory } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  selectName,
+  selectRoomid,
+  selectType,
+  clear
+} from '../features/game/gameSlice';
 
 function GameRoom(props) {
-    
+    const dispatch = useDispatch();
     const history = useHistory();
+    const name = useSelector(selectName);
+    const roomid = useSelector(selectRoomid);
+    const type = useSelector(selectType);
+
+    console.log(name,type,roomid);
+    if(!name && !type){
+      history.replace('/')
+    }
+
     let room_instance= useRef(null)
     const [value, setValue] = useState("");
 
@@ -28,11 +44,19 @@ function GameRoom(props) {
 
           localStorage.setItem("roomId", room_instance.current.id);
           localStorage.setItem("sessionId", room_instance.current.sessionId);
-          localStorage.setItem("name", props.history.location.state.name);
+          localStorage.setItem("name", name);
+      }
+
+      const clearStorage = () => {
+        localStorage.removeItem("roomId");
+        localStorage.removeItem("sessionId");
+        localStorage.removeItem("name");
+
+        dispatch(clear())
       }
 
       // type can contain 3 things (create/join/reconnect)
-      if(props?.history?.location?.state?.type==='create'){
+      if(type==='create'){
 
         // create a new room 
         client.create("my_room").then(room => {
@@ -55,17 +79,17 @@ function GameRoom(props) {
           });
          
         }).catch((e)=>{
-
           console.log('error');
           console.log(e);
+          clearStorage();
           alert('could not create');
           history.goBack();
         });
       }
-      else if(props?.history?.location?.state?.type==='join'){
+      else if(type==='join'){
 
       // join a room by id
-        client.joinById(props.history.location.state.roomid).then(room => {
+        client.joinById(roomid).then(room => {
           room_instance.current=room;
           onjoin();
 
@@ -88,11 +112,12 @@ function GameRoom(props) {
           //todo: redirect
           console.log('error');
           console.log(e);
+          clearStorage();
           alert(e);
           history.goBack();
         });
       }      
-      else if(props?.history?.location?.state?.type==='reconnect'){
+      else if(type==='reconnect'){
         var roomId = localStorage.getItem("roomId");
         var sessionId = localStorage.getItem("sessionId");
 
@@ -118,16 +143,12 @@ function GameRoom(props) {
         }).catch(e => {
             console.error("Error", e);
 
-          localStorage.removeItem("roomId");
-          localStorage.removeItem("sessionId");
-          localStorage.removeItem("name");
+            clearStorage();
           alert('could not reconnect');
             history.replace('/',{});
         });
         }else{
-          localStorage.removeItem("roomId");
-          localStorage.removeItem("sessionId");
-          localStorage.removeItem("name");
+          clearStorage();
           alert('could not reconnect');
           history.replace('/',{});
         }
@@ -153,6 +174,11 @@ function GameRoom(props) {
       console.log(e);
       console.log(room_instance.current.id,room_instance.current.sessionId);
       // history.replace('/',{})
+
+      localStorage.setItem("roomId", room_instance.current.id);
+      localStorage.setItem("sessionId", room_instance.current.sessionId);
+      localStorage.setItem("name", name);
+
     };
 
     // functiion to leave the room

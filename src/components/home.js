@@ -3,10 +3,13 @@ import {
   } from 'react-router-dom';
 import { useEffect,useState } from "react";
 import TextField from '@material-ui/core/TextField';
-
+import { useDispatch } from 'react-redux';
+import {
+    details
+  } from '../features/game/gameSlice';
 
 function Home(props) {
-
+    const dispatch = useDispatch();
     let history = useHistory();
 
     const [room_id, setRoom_id] = useState("");
@@ -53,13 +56,15 @@ function Home(props) {
     // checks if value is present in join button
     // if true then join room
     // else create a new room
+    console.log("in home",name,room_id);
+
     if (room_id){
-        history.push("/gameroom",{type:'join',roomid:room_id, name:name.trim()});
+
+        dispatch(details({name:name.trim(),roomid:room_id, type:'join' }))
+        history.push("/gameroom");
     }else{
-        history.push("/gameroom",{
-            type: "create" ,
-            name:name.trim()
-                });
+        dispatch(details({name:name.trim(),type:'create' }))
+        history.push("/gameroom");
     }
     
     }
@@ -68,10 +73,8 @@ function Home(props) {
     const onReconnectPressed =(e) => {
     e.preventDefault();
     console.log('You clicked submit3.');
-    history.push("/gameroom",{
-        type: "reconnect" ,
-        name:localStorageName
-            });
+    dispatch(details({name:localStorageName,type:'reconnect' }))
+    history.push("/gameroom");
     }
 
 
