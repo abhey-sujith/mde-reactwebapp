@@ -53,19 +53,29 @@ function Home(props) {
     e.preventDefault();
     console.log('You clicked submit2.');
 
-    // checks if value is present in join button
-    // if true then join room
-    // else create a new room
     console.log("in home",name,room_id);
 
-    if (room_id){
+    if (name.length > 60) {
+        return;
+    } else{
 
-        dispatch(details({name:name.trim(),roomid:room_id, type:'join' }))
-        history.push("/gameroom");
-    }else{
-        dispatch(details({name:name.trim(),type:'create' }))
-        history.push("/gameroom");
+        if (room_id){
+            if (room_id.length < 4 || room_id.length >=5) {
+                return;
+            } else{
+                dispatch(details({name:name.trim(),roomid:room_id, type:'join' }))
+                history.push("/gameroom");
+            }
+    
+            
+        }else{
+            dispatch(details({name:name.trim(),type:'create' }))
+            history.push("/gameroom");
+        }
     }
+    
+
+
     
     }
 
